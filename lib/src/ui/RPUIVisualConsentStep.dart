@@ -6,14 +6,15 @@ part of research_package_ui;
 /// Instead, add an visual consent step to a task and present the task using a task widget.
 /// When appropriate, the task widget instantiates the visual consent step widget for the step.
 class RPUIVisualConsentStep extends StatefulWidget {
-  const RPUIVisualConsentStep({super.key, required this.consentDocument});
+  RPUIVisualConsentStep({required this.consentDocument});
+
   final RPConsentDocument consentDocument;
 
   @override
-  RPUIVisualConsentStepState createState() => RPUIVisualConsentStepState();
+  _RPUIVisualConsentStep createState() => _RPUIVisualConsentStep();
 }
 
-class RPUIVisualConsentStepState extends State<RPUIVisualConsentStep>
+class _RPUIVisualConsentStep extends State<RPUIVisualConsentStep>
     with SingleTickerProviderStateMixin {
   int _pageNr = 0;
   bool _lastPage = false;
@@ -23,7 +24,7 @@ class RPUIVisualConsentStepState extends State<RPUIVisualConsentStep>
     super.initState();
   }
 
-  void _goToNextPage(int pageNr) {
+  void _goToNextPage(pageNr) {
     setState(() {
       _pageNr = pageNr;
       if (_pageNr == widget.consentDocument.sections.length - 1) {
@@ -32,19 +33,20 @@ class RPUIVisualConsentStepState extends State<RPUIVisualConsentStep>
     });
   }
 
-  void _pushContent(String title, String content) {
+  _pushContent(String title, String content) {
     Navigator.of(context).push(
-      MaterialPageRoute<dynamic>(
-        builder: (context) => _DetailTextRoute(
-          title: title,
-          content: content,
-        ),
+      MaterialPageRoute(
+        builder: (context) =>
+            _ContentRoute(
+              title: title,
+              content: content,
+            ),
       ),
     );
   }
 
   void _showCancelDialog() {
-    showDialog<dynamic>(
+    showDialog(
       context: context,
       builder: (context) {
         RPLocalizations? locale = RPLocalizations.of(context);
@@ -55,7 +57,9 @@ class RPUIVisualConsentStepState extends State<RPUIVisualConsentStep>
             OutlinedButton(
               child: Text(
                 locale?.translate('YES') ?? "YES",
-                style: TextStyle(color: Theme.of(context).primaryColor),
+                style: TextStyle(color: Theme
+                    .of(context)
+                    .primaryColor),
               ),
               onPressed: () {
                 Navigator.of(context).pop(); // Pop the popup
@@ -64,13 +68,18 @@ class RPUIVisualConsentStepState extends State<RPUIVisualConsentStep>
             ),
             ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor),
+                    primary: Theme
+                        .of(context)
+                        .primaryColor),
                 child: Text(
                   RPLocalizations.of(context)?.translate('NO') ?? 'NO',
-                  style: Theme.of(context).primaryTextTheme.labelLarge,
+                  style: Theme
+                      .of(context)
+                      .primaryTextTheme
+                      .button,
                 ),
                 onPressed: () => Navigator.of(context).pop() // Pop the popup,
-                )
+            )
           ],
         );
       },
@@ -216,21 +225,27 @@ class RPUIVisualConsentStepState extends State<RPUIVisualConsentStep>
     if (section.type == RPConsentSectionType.UserDataCollection ||
         section.type == RPConsentSectionType.PassiveDataCollection) {
       return Container(
-        padding: const EdgeInsets.all(10.0),
+        // padding: EdgeInsets.all(10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 4.0),
+              padding: EdgeInsets.symmetric(vertical: 4.0),
               child: Text(
                 locale?.translate(section.title) ?? section.title,
-                style: Theme.of(context).textTheme.headlineMedium,
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .headline4,
                 textAlign: TextAlign.start,
               ),
             ),
             Text(
               locale?.translate(section.summary!) ?? section.summary!,
-              style: Theme.of(context).textTheme.bodyLarge,
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .bodyText1,
               textAlign: TextAlign.start,
             ),
             Expanded(
@@ -244,9 +259,9 @@ class RPUIVisualConsentStepState extends State<RPUIVisualConsentStep>
           ],
         ),
       );
-    } else {
+    } else
       return Container(
-        padding: const EdgeInsets.all(30.0),
+        padding: EdgeInsets.all(30.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -255,9 +270,15 @@ class RPUIVisualConsentStepState extends State<RPUIVisualConsentStep>
               child: Stack(
                 children: [
                   SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.25,
-                    width: MediaQuery.of(context).size.width * 0.25,
                     child: _illustrationForType(section),
+                    height: MediaQuery
+                        .of(context)
+                        .size
+                        .height * 0.25,
+                    width: MediaQuery
+                        .of(context)
+                        .size
+                        .width * 0.25,
                   ),
                 ],
               ),
@@ -267,70 +288,105 @@ class RPUIVisualConsentStepState extends State<RPUIVisualConsentStep>
               children: <Widget>[
                 Text(
                   locale?.translate(section.title) ?? section.title,
-                  style: Theme.of(context).textTheme.headlineMedium,
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .headline4,
                   textAlign: TextAlign.start,
                 ),
-                const SizedBox(height: 5),
+                SizedBox(height: 5),
                 Text(locale?.translate(section.summary!) ?? section.summary!,
-                    style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: 30),
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .headline6),
+                SizedBox(height: 30),
                 GestureDetector(
-                  onTap: () => _pushContent(
-                    section.title,
-                    section.content!,
-                  ),
+                  onTap: () =>
+                      _pushContent(
+                        section.title,
+                        section.content!,
+                      ),
                   child: Text(
                       RPLocalizations.of(context)?.translate('learn_more') ??
                           "Learn more...",
-                      style: Theme.of(context)
+                      style: Theme
+                          .of(context)
                           .textTheme
-                          .titleLarge!
-                          .copyWith(color: Theme.of(context).primaryColor)),
+                          .headline6!
+                          .copyWith(color: Theme
+                          .of(context)
+                          .primaryColor)
+                    // textAlign: TextAlign.start,
+                  ),
                 ),
+                // Padding(
+                //   padding: EdgeInsets.only(top: 8),
+                //   child: OutlinedButton.icon(
+                //     icon: Icon(Icons.help),
+                //     label: Text(
+                //       locale?.translate('learn_more') ?? 'Learn more...',
+                //     ),
+                //     onPressed: () => _pushContent(
+                //       section.title,
+                //       section.content!,
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ],
         ),
       );
-    }
   }
 
   Widget _navigationButtons(PageController controller) {
     return Container(
-      padding:
-          const EdgeInsets.only(bottom: 15.0, top: 10.0, left: 30, right: 30),
+      padding: EdgeInsets.only(bottom: 15.0, top: 10.0, left: 30, right: 30),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           OutlinedButton(
             child: Text(
               RPLocalizations.of(context)?.translate('CANCEL') ?? 'CANCEL',
-              style: TextStyle(color: Theme.of(context).primaryColor),
+              style: TextStyle(color: Theme
+                  .of(context)
+                  .primaryColor),
             ),
             onPressed: () => _showCancelDialog(),
           ),
-          TextButton(
-            style: ButtonStyle(
-              backgroundColor:
-                  MaterialStateProperty.all(Theme.of(context).primaryColor),
+          ButtonTheme(
+            buttonColor: Theme
+                .of(context)
+                .primaryColor,
+            minWidth: 70,
+            child: TextButton(
+              style: ButtonStyle(
+                backgroundColor:
+                MaterialStateProperty.all(Theme
+                    .of(context)
+                    .primaryColor),
+              ),
+              child: _lastPage
+                  ? Text(
+                RPLocalizations.of(context)?.translate('SEE_SUMMARY') ??
+                    "SEE SUMMARY",
+                style: TextStyle(color: Colors.white), //
+              )
+                  : Text(
+                RPLocalizations.of(context)?.translate('NEXT') ?? "NEXT",
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .button,
+              ),
+              onPressed: _lastPage
+                  ? () => blocTask.sendStatus(RPStepStatus.Finished)
+                  : () =>
+                  controller.nextPage(
+                      duration: Duration(milliseconds: 400),
+                      curve: Curves.fastOutSlowIn),
             ),
-            onPressed: _lastPage
-                ? () => blocTask.sendStatus(RPStepStatus.Finished)
-                : () => controller.nextPage(
-                    duration: const Duration(milliseconds: 400),
-                    curve: Curves.fastOutSlowIn),
-            child: _lastPage
-                ? Text(
-                    RPLocalizations.of(context)?.translate('SEE_SUMMARY') ??
-                        "SEE SUMMARY",
-                    style: const TextStyle(color: Colors.white),
-                  )
-                : Text(
-                    RPLocalizations.of(context)?.translate('NEXT') ?? "NEXT",
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                        ),
-                  ),
           ),
         ],
       ),
@@ -344,17 +400,21 @@ class RPUIVisualConsentStepState extends State<RPUIVisualConsentStep>
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: Theme
+            .of(context)
+            .scaffoldBackgroundColor,
         body: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
+              // _carouselBar(),
               Expanded(
                 child: PageView.builder(
                   onPageChanged: (pageNr) {
                     _goToNextPage(pageNr);
+                    // _controller.forward(from: 0.3);
                   },
-                  physics: const NeverScrollableScrollPhysics(),
+                  physics: NeverScrollableScrollPhysics(),
                   itemCount: widget.consentDocument.sections.length,
                   controller: controller,
                   itemBuilder: _consentSectionPageBuilder,
@@ -369,37 +429,104 @@ class RPUIVisualConsentStepState extends State<RPUIVisualConsentStep>
   }
 }
 
+class _ContentRoute extends StatelessWidget {
+  final String title;
+  final String content;
+
+  _ContentRoute({required this.title, required this.content});
+
+  @override
+  Widget build(BuildContext context) {
+    RPLocalizations? locale = RPLocalizations.of(context);
+    return Scaffold(
+      backgroundColor: Theme
+          .of(context)
+          .scaffoldBackgroundColor,
+      // appBar: AppBar(
+      //   title: Text(locale?.translate(this.title) ?? this.title),
+      // ),
+      body: Column(
+        children: [
+          SizedBox(height: 35),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              // Padding(
+              //   padding: EdgeInsets.symmetric(horizontal: 20),
+              //   child: Text(locale?.translate(this.title) ?? this.title,
+              //       style: Theme.of(context).textTheme.headline4),
+              // ),
+              IconButton(
+                icon: Icon(Icons.clear,
+                    color: Theme
+                        .of(context)
+                        .primaryColor, size: 30),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              SizedBox(width: 5),
+            ],
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Container(
+                padding: EdgeInsets.all(20.0),
+                child: Text(
+                  locale?.translate(this.content) ?? this.content,
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .headline6,
+                  textAlign: TextAlign.justify,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class DataCollectionListItem extends StatefulWidget {
   final RPDataTypeSection dataTypeSection;
 
-  const DataCollectionListItem(this.dataTypeSection, {super.key});
+  DataCollectionListItem(this.dataTypeSection);
+
   @override
-  DataCollectionListItemState createState() => DataCollectionListItemState();
+  _DataCollectionListItemState createState() => _DataCollectionListItemState();
 }
 
-class DataCollectionListItemState extends State<DataCollectionListItem> {
+class _DataCollectionListItemState extends State<DataCollectionListItem> {
   bool isExpanded = false;
 
   @override
   Widget build(BuildContext context) {
     RPLocalizations? locale = RPLocalizations.of(context);
-    return ExpansionTile(
-      expandedAlignment: Alignment.centerLeft,
-      title: Text(
-        locale?.translate(widget.dataTypeSection.dataName) ??
-            widget.dataTypeSection.dataName,
-        style: Theme.of(context).textTheme.titleMedium,
-        textAlign: TextAlign.start,
-      ),
-      childrenPadding: const EdgeInsets.only(left: 15, right: 15, bottom: 5),
-      children: [
-        Text(
-          locale?.translate(widget.dataTypeSection.dataInformation) ??
-              widget.dataTypeSection.dataInformation,
-          style: Theme.of(context).textTheme.bodyMedium,
+    return Container(
+      child: ExpansionTile(
+        expandedAlignment: Alignment.centerLeft,
+        title: Text(
+          locale?.translate(widget.dataTypeSection.dataName) ??
+              widget.dataTypeSection.dataName,
+          style: Theme
+              .of(context)
+              .textTheme
+              .subtitle1,
           textAlign: TextAlign.start,
         ),
-      ],
+        childrenPadding: EdgeInsets.only(left: 15, right: 15, bottom: 5),
+        children: [
+          Text(
+            locale?.translate(widget.dataTypeSection.dataInformation) ??
+                widget.dataTypeSection.dataInformation,
+            style: Theme
+                .of(context)
+                .textTheme
+                .bodyText2,
+            textAlign: TextAlign.start,
+          ),
+        ],
+      ),
     );
   }
 }

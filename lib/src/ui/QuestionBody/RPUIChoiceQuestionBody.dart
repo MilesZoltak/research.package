@@ -3,31 +3,27 @@ part of research_package_ui;
 /// The UI representation of [RPChoiceAnswerFormat]. This UI part appears embedded in a [RPUIQuestionStep].
 /// Depending on the [RPChoiceAnswerFormat]'s [ChoiceAnswerStyle] property, the user can select only one or multiple options.
 class RPUIChoiceQuestionBody extends StatefulWidget {
-  final RPChoiceAnswerFormat answerFormat;
-  final void Function(dynamic) onResultChange;
+  final RPChoiceAnswerFormat _answerFormat;
+  final Function(dynamic) onResultChange;
 
-  const RPUIChoiceQuestionBody(
-    this.answerFormat,
-    this.onResultChange, {
-    super.key,
-  });
+  RPUIChoiceQuestionBody(this._answerFormat, this.onResultChange);
 
   @override
-  RPUIChoiceQuestionBodyState createState() => RPUIChoiceQuestionBodyState();
+  _RPUIChoiceQuestionBodyState createState() => _RPUIChoiceQuestionBodyState();
 }
 
-class RPUIChoiceQuestionBodyState extends State<RPUIChoiceQuestionBody>
+class _RPUIChoiceQuestionBodyState extends State<RPUIChoiceQuestionBody>
     with AutomaticKeepAliveClientMixin<RPUIChoiceQuestionBody> {
   late List<RPChoice> selectedChoices;
 
   @override
   void initState() {
-    super.initState();
     selectedChoices = [];
+    super.initState();
   }
 
   void _buttonCallBack(RPChoice selectedChoice) {
-    if (widget.answerFormat.answerStyle == RPChoiceAnswerStyle.SingleChoice) {
+    if (widget._answerFormat.answerStyle == RPChoiceAnswerStyle.SingleChoice) {
       // Setting the state here is calling the build method so the check marks can be rendered.
       // Only one choice can be selected.
       if (selectedChoices.contains(selectedChoice)) {
@@ -41,7 +37,8 @@ class RPUIChoiceQuestionBodyState extends State<RPUIChoiceQuestionBody>
         });
       }
     }
-    if (widget.answerFormat.answerStyle == RPChoiceAnswerStyle.MultipleChoice) {
+    if (widget._answerFormat.answerStyle ==
+        RPChoiceAnswerStyle.MultipleChoice) {
       // Setting the state here is calling the build method so the check marks can be rendered.
       // Multiple choice can be selected.
       if (selectedChoices.contains(selectedChoice)) {
@@ -55,22 +52,22 @@ class RPUIChoiceQuestionBodyState extends State<RPUIChoiceQuestionBody>
       }
     }
 
-    selectedChoices.isNotEmpty
+    selectedChoices.length != 0
         ? widget.onResultChange(selectedChoices)
         : widget.onResultChange(null);
   }
 
   Widget _choiceCellBuilder(BuildContext context, int index) {
     return _ChoiceButton(
-      choice: widget.answerFormat.choices[index],
+      choice: widget._answerFormat.choices[index],
       selectedCallBack: _buttonCallBack,
-      selected: selectedChoices.contains(widget.answerFormat.choices[index])
+      selected: selectedChoices.contains(widget._answerFormat.choices[index])
           ? true
           : false,
       currentChoices: selectedChoices,
       index: index,
-      isLastChoice: index == widget.answerFormat.choices.length - 1,
-      answerStyle: widget.answerFormat.answerStyle,
+      isLastChoice: index == widget._answerFormat.choices.length - 1,
+      answerStyle: widget._answerFormat.answerStyle,
     );
   }
 
@@ -84,15 +81,15 @@ class RPUIChoiceQuestionBodyState extends State<RPUIChoiceQuestionBody>
       children: <Widget>[
         Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text((widget.answerFormat.answerStyle ==
+            child: Text((widget._answerFormat.answerStyle ==
                     RPChoiceAnswerStyle.MultipleChoice)
-                ? "(${locale?.translate('choose_one_or_more_options') ?? 'Choose one or more options'})"
-                : "(${locale?.translate('choose_one_option') ?? 'Choose one option'})")),
+                ? "(${locale?.translate('choose_one_or_more_options')})"
+                : "(${locale?.translate('choose_one_option')})")),
         ListView.builder(
           shrinkWrap: true,
-          itemCount: widget.answerFormat.choices.length,
+          itemCount: widget._answerFormat.choices.length,
           itemBuilder: _choiceCellBuilder,
-          physics: const NeverScrollableScrollPhysics(),
+          physics: NeverScrollableScrollPhysics(),
         ),
       ],
     );
@@ -111,7 +108,7 @@ class _ChoiceButton extends StatefulWidget {
   final int index;
   final RPChoiceAnswerStyle answerStyle;
 
-  const _ChoiceButton(
+  _ChoiceButton(
       {required this.choice,
       required this.selectedCallBack,
       required this.currentChoices,
@@ -126,13 +123,6 @@ class _ChoiceButton extends StatefulWidget {
 
 class _ChoiceButtonState extends State<_ChoiceButton> {
   RPChoice? grpChoice;
-  late TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -148,71 +138,41 @@ class _ChoiceButtonState extends State<_ChoiceButton> {
                   value: widget.choice,
                   groupValue: grpChoice,
                   onChanged: (x) => widget.selectedCallBack(widget.choice),
-
-                  /// If the CupertinoTheme is in use, the primary color won't be the default one.
-                  /// In that case we use the CupertinoTheme primary color here, to match the rest of the app.
-                  activeColor: (CupertinoTheme.of(context).primaryColor ==
-                          CupertinoColors.activeBlue)
-                      ? Theme.of(context).primaryColor
-                      : CupertinoTheme.of(context).primaryColor)
+                  activeColor: Theme.of(context).primaryColor)
               : Checkbox(
                   value: widget.selected,
                   onChanged: (x) => widget.selectedCallBack(widget.choice),
-                  activeColor: (CupertinoTheme.of(context).primaryColor ==
-                          CupertinoColors.activeBlue)
-                      ? Theme.of(context).primaryColor
-                      : CupertinoTheme.of(context).primaryColor,
+                  activeColor: Theme.of(context).primaryColor,
                 ),
           Expanded(
             child: Container(
-              padding: widget.choice.isFreeText
-                  ? null
-                  : const EdgeInsets.only(bottom: 13),
+              padding:
+                  widget.choice.isFreeText ? null : EdgeInsets.only(bottom: 13),
               decoration: !widget.isLastChoice
                   ? BoxDecoration(
                       border: Border(
-                        bottom:
-                            BorderSide(color: Theme.of(context).dividerColor),
-                      ),
-                    )
+                          bottom: BorderSide(
+                              color: Theme.of(context).dividerColor)))
                   : null,
               child: widget.choice.isFreeText
-                  ? TextField(
-                      onChanged: (newText) => widget.choice.text = newText,
-                      decoration: InputDecoration(
-                        hintText: locale?.translate(widget.choice.text) ??
-                            widget.choice.text,
+                  ? Container(
+                      child: TextField(
+                        onChanged: (newText) => widget.choice.text = newText,
+                        decoration: InputDecoration(
+                            hintText: locale?.translate(widget.choice.text) ??
+                                widget.choice.text),
                       ),
                     )
                   : Text(
                       locale?.translate(widget.choice.text) ??
                           widget.choice.text,
-                      style: Theme.of(context).textTheme.bodyMedium,
+                      style: Theme.of(context).textTheme.bodyText2,
                       softWrap: true,
                     ),
             ),
           ),
-          if (widget.choice.detailText != null)
-            IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<dynamic>(
-                      builder: (context) => _DetailTextRoute(
-                        title: widget.choice.text,
-                        content: widget.choice.detailText!,
-                      ),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.info))
         ]),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 }

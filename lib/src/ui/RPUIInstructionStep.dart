@@ -8,22 +8,22 @@ part of research_package_ui;
 class RPUIInstructionStep extends StatefulWidget {
   final RPInstructionStep step;
 
-  const RPUIInstructionStep({super.key, required this.step});
+  RPUIInstructionStep({required this.step});
 
   @override
-  RPUIInstructionStepState createState() => RPUIInstructionStepState();
+  _RPUIInstructionStepState createState() => _RPUIInstructionStepState();
 }
 
-class RPUIInstructionStepState extends State<RPUIInstructionStep> {
+class _RPUIInstructionStepState extends State<RPUIInstructionStep> {
   @override
   void initState() {
     blocQuestion.sendReadyToProceed(true);
     super.initState();
   }
 
-  void _pushDetailTextRoute() {
+  _pushDetailTextRoute() {
     Navigator.of(context).push(
-      MaterialPageRoute<dynamic>(
+      MaterialPageRoute(
         builder: (context) {
           return _DetailTextRoute(
             title: widget.step.title,
@@ -47,9 +47,9 @@ class RPUIInstructionStepState extends State<RPUIInstructionStep> {
             if (widget.step.imagePath != null)
               Center(
                 child: SizedBox(
+                  child: InstructionImage(widget.step.imagePath!),
                   height: MediaQuery.of(context).size.height * 0.25,
                   width: MediaQuery.of(context).size.width * 0.25,
-                  child: InstructionImage(widget.step.imagePath!),
                 ),
               ),
 
@@ -57,27 +57,21 @@ class RPUIInstructionStepState extends State<RPUIInstructionStep> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
+                  padding: EdgeInsets.symmetric(vertical: 30, horizontal: 16),
                   child: Text(
                     locale?.translate(widget.step.text!) ?? widget.step.text!,
-                    textAlign: TextAlign.start,
-                    style: Theme.of(context).textTheme.headlineSmall,
+                    textAlign: TextAlign.justify,
+                    style: Theme.of(context).textTheme.headline5,
                   ),
                 ),
                 widget.step.detailText != null
                     ? TextButton(
                         style: TextButton.styleFrom(
-                          textStyle: TextStyle(
-                            color: (CupertinoTheme.of(context).primaryColor ==
-                                    CupertinoColors.activeBlue)
-                                ? Theme.of(context).primaryColor
-                                : CupertinoTheme.of(context).primaryColor,
-                          ),
-                        ),
-                        onPressed: _pushDetailTextRoute,
+                            textStyle: TextStyle(
+                                color: Theme.of(context).primaryColor)),
                         child: Text(
                             locale?.translate('learn_more') ?? "Learn more..."),
+                        onPressed: _pushDetailTextRoute,
                       )
                     : Container(),
               ],
@@ -88,7 +82,8 @@ class RPUIInstructionStepState extends State<RPUIInstructionStep> {
                     child: Text(
                       locale?.translate(widget.step.footnote!) ??
                           widget.step.footnote!,
-                      style: Theme.of(context).textTheme.bodySmall,
+                      style:
+                          Theme.of(context).textTheme.caption, // TODO: change?
                       textAlign: TextAlign.start,
                     ),
                   )
@@ -104,50 +99,51 @@ class _DetailTextRoute extends StatelessWidget {
   final String title;
   final String content;
 
-  const _DetailTextRoute({required this.title, required this.content});
+  _DetailTextRoute({required this.title, required this.content});
 
   @override
   Widget build(BuildContext context) {
     RPLocalizations? locale = RPLocalizations.of(context);
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        // appBar: AppBar(
+        //   title: Text(locale?.translate(this.title) ?? this.title),
+        // ),
+        body: Column(
           children: [
+            SizedBox(height: 35),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                const SizedBox(width: 3),
+                SizedBox(width: 3),
                 IconButton(
                   icon: Icon(Icons.arrow_back,
-                      color: Theme.of(context).colorScheme.onPrimary, size: 30),
+                      color: Theme.of(context).primaryColor, size: 30),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
                 Text(locale?.translate('learn_more') ?? 'Learn more',
-                    style: Theme.of(context).textTheme.headlineSmall),
+                    style: Theme.of(context).textTheme.headline5),
               ],
             ),
             Container(
-              padding: const EdgeInsets.all(20.0),
+              padding: EdgeInsets.all(20.0),
               child: SingleChildScrollView(
                 child: Text(
-                  locale?.translate(content) ?? content,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                  textAlign: TextAlign.start,
+                  locale?.translate(this.content) ?? this.content,
+                  style: Theme.of(context).textTheme.bodyText1,
+                  textAlign: TextAlign.justify,
                 ),
               ),
             ),
           ],
-        ),
-      ),
-    );
+        ));
   }
 }
 
 class InstructionImage extends StatelessWidget {
   final String _imagePath;
 
-  const InstructionImage(this._imagePath, {super.key});
+  InstructionImage(this._imagePath);
 
   @override
   Widget build(BuildContext context) {
@@ -164,7 +160,7 @@ class InstructionImage extends StatelessWidget {
 // Render the title above the questionBody
 class InstructionText extends StatelessWidget {
   final String text;
-  const InstructionText(this.text, {super.key});
+  InstructionText(this.text);
 
   @override
   Widget build(BuildContext context) {
@@ -173,7 +169,7 @@ class InstructionText extends StatelessWidget {
     } else {
       return Text(
         text,
-        style: Theme.of(context).textTheme.bodyLarge,
+        style: Theme.of(context).textTheme.bodyText1,
         textAlign: TextAlign.start,
       );
     }

@@ -19,8 +19,7 @@ part of research_package_ui;
 /// ```
 ///
 class AssetLocalizations {
-  /// A map of available translations for this [locale].
-  Map<String, String> translations = {};
+  late Map<String, String> _translations;
 
   final Locale locale;
 
@@ -39,23 +38,25 @@ class AssetLocalizations {
   String get filename => 'assets/lang/${locale.languageCode}.json';
 
   /// Load the translations from [filename] based on the [locale].
-  Future<void> load() async {
+  Future<bool> load() async {
     print("$runtimeType - loading '$filename'");
 
     String jsonString = await rootBundle.loadString(filename, cache: false);
 
-    Map<String, dynamic> jsonMap =
-        json.decode(jsonString) as Map<String, dynamic>;
-    translations = jsonMap.map((key, value) => MapEntry(key, value.toString()));
+    Map<String, dynamic> jsonMap = json.decode(jsonString);
+    _translations =
+        jsonMap.map((key, value) => MapEntry(key, value.toString()));
+
+    return true;
   }
 
   /// Can this [key] be translated by this localization?
-  bool canTranslate(String key) => translations.containsKey(key);
+  bool canTranslate(String key) => _translations.containsKey(key);
 
   /// Translate [key] to this [locale].
   /// If [key] is not translated, [key] is returned 'as-is'.
   String translate(String key) =>
-      (translations.containsKey(key)) ? translations[key]! : key;
+      (_translations.containsKey(key)) ? _translations[key]! : key;
 
   /// A default [LocalizationsDelegate] for [AssetLocalizations].
   ///

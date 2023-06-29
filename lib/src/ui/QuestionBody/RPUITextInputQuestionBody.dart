@@ -2,25 +2,21 @@ part of research_package_ui;
 
 class RPUITextInputQuestionBody extends StatefulWidget {
   final RPTextAnswerFormat answerFormat;
-  final void Function(dynamic) onResultChange;
+  final Function(dynamic) onResultChange;
 
-  const RPUITextInputQuestionBody(
-    this.answerFormat,
-    this.onResultChange, {
-    super.key,
-  });
+  RPUITextInputQuestionBody(this.answerFormat, this.onResultChange);
 
   @override
-  RPUITextInputQuestionBodyState createState() =>
-      RPUITextInputQuestionBodyState();
+  _RPUITextInputQuestionBodyState createState() =>
+      _RPUITextInputQuestionBodyState();
 }
 
-class RPUITextInputQuestionBodyState extends State<RPUITextInputQuestionBody>
+class _RPUITextInputQuestionBodyState extends State<RPUITextInputQuestionBody>
     with AutomaticKeepAliveClientMixin<RPUITextInputQuestionBody> {
-  final TextEditingController _controller = TextEditingController();
+  TextEditingController _controller = TextEditingController();
 
   void checkInput(String input) {
-    if (input.isNotEmpty) {
+    if (input.length != 0) {
       widget.onResultChange(input);
     } else {
       widget.onResultChange(null);
@@ -32,33 +28,19 @@ class RPUITextInputQuestionBodyState extends State<RPUITextInputQuestionBody>
     RPLocalizations? locale = RPLocalizations.of(context);
 
     super.build(context);
-    return TextField(
-      maxLines: 10,
-      onChanged: checkInput,
-      decoration: InputDecoration(
-        hintText: (widget.answerFormat.hintText != null)
-            ? (locale?.translate(widget.answerFormat.hintText!) ??
-                widget.answerFormat.hintText)
-            : widget.answerFormat.hintText,
-        border: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: (CupertinoTheme.of(context).primaryColor ==
-                    CupertinoColors.activeBlue)
-                ? Theme.of(context).primaryColor
-                : CupertinoTheme.of(context).primaryColor,
-          ),
+    return Container(
+      child: TextField(
+        maxLines: 10,
+        onChanged: checkInput,
+        decoration: InputDecoration(
+          hintText: (widget.answerFormat.hintText != null)
+              ? (locale?.translate(widget.answerFormat.hintText!) ??
+                  widget.answerFormat.hintText)
+              : widget.answerFormat.hintText,
+          border: OutlineInputBorder(),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: (CupertinoTheme.of(context).primaryColor ==
-                    CupertinoColors.activeBlue)
-                ? Theme.of(context).primaryColor
-                : CupertinoTheme.of(context).primaryColor,
-          ),
-        ),
+        controller: _controller,
       ),
-      controller: _controller,
-      autofocus: widget.answerFormat.autoFocus,
     );
   }
 

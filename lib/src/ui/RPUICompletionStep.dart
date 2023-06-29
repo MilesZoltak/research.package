@@ -7,13 +7,13 @@ part of research_package_ui;
 class RPUICompletionStep extends StatefulWidget {
   final RPCompletionStep step;
 
-  const RPUICompletionStep({super.key, required this.step});
+  RPUICompletionStep({required this.step});
 
   @override
-  RPUICompletionStepState createState() => RPUICompletionStepState();
+  _RPUICompletionStepState createState() => _RPUICompletionStepState();
 }
 
-class RPUICompletionStepState extends State<RPUICompletionStep>
+class _RPUICompletionStepState extends State<RPUICompletionStep>
     with SingleTickerProviderStateMixin {
   late Animation<double> _scale;
   late AnimationController _controller;
@@ -22,8 +22,8 @@ class RPUICompletionStepState extends State<RPUICompletionStep>
   void initState() {
     super.initState();
 
-    _controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 350));
+    _controller =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 350));
     _scale = Tween(begin: 0.3, end: 1.1)
         .chain(CurveTween(curve: Curves.easeInOut))
         .animate(_controller);
@@ -43,7 +43,7 @@ class RPUICompletionStepState extends State<RPUICompletionStep>
               children: <Widget>[
                 Text(
                   locale?.translate(widget.step.title) ?? widget.step.title,
-                  style: Theme.of(context).textTheme.headlineMedium,
+                  style: Theme.of(context).textTheme.headline4,
                   textAlign: TextAlign.center,
                 ),
                 Center(
@@ -51,7 +51,7 @@ class RPUICompletionStepState extends State<RPUICompletionStep>
                     padding: const EdgeInsets.all(12.0),
                     child: Text(
                       locale?.translate(widget.step.text!) ?? widget.step.text!,
-                      style: Theme.of(context).textTheme.titleMedium,
+                      style: Theme.of(context).textTheme.subtitle1,
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -60,11 +60,10 @@ class RPUICompletionStepState extends State<RPUICompletionStep>
             ),
             ScaleTransition(
               scale: _scale,
-              child: Image.asset(
-                'assets/icons/checkmark.png',
-                package: 'research_package',
-                height: 120,
-                width: 120,
+              child: Icon(
+                Icons.check_circle,
+                size: 120,
+                color: Theme.of(context).colorScheme.secondary,
               ),
             ),
             ButtonTheme(
@@ -74,14 +73,8 @@ class RPUICompletionStepState extends State<RPUICompletionStep>
                   blocTask.sendStatus(RPStepStatus.Finished);
                 },
                 child: Text(
-                  RPLocalizations.of(context)?.translate('DONE') ?? "DONE",
-                  style: TextStyle(
-                    color: (CupertinoTheme.of(context).primaryColor ==
-                            CupertinoColors.activeBlue)
-                        ? Theme.of(context).primaryColor
-                        : CupertinoTheme.of(context).primaryColor,
-                  ),
-                ),
+                    RPLocalizations.of(context)?.translate('DONE') ?? "DONE",
+                    style: TextStyle(color: Theme.of(context).primaryColor)),
               ),
             )
           ],

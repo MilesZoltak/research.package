@@ -6,13 +6,7 @@ import 'informed_consent_page.dart';
 import 'linear_survey_page.dart';
 import 'navigable_survey_page.dart';
 
-Future main() async {
-  // initialize cognition package
-  // only used if you load a cognition configuration from a json file
-  ResearchPackage.ensureInitialized();
-
-  runApp(MyApp());
-}
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
@@ -21,31 +15,20 @@ class MyApp extends StatelessWidget {
       supportedLocales: [
         Locale('en'),
         Locale('da'),
-        Locale('fr'),
       ],
       localizationsDelegates: [
-        // Research Package translations - supports translation of both the
-        // RP-specific text as well as app-specific text.
-        //  - translations of the RP text is part of the RP Flutter package
+        // App translations
         //  - the translations of app text is located in the 'assets/lang/' folder
-        //  - the translations of informed consent and surveys are part of the
-        //    app text and also included in the the 'assets/lang/' files
-        //  - note that only some text is translated -- illustrates that RP
-        //    works both with and without translation.
-        RPLocalizations.delegate,
+        //  - note that the json files contains a COMBINATION of both app and
+        //    translations of the surveys and informed consent in this demo app
+        AssetLocalizations.delegate,
 
-        // Research Package translations - supports translation of both;
-        //  - the RP-specific text
-        //  - app-specific text using the [AssetLocalizationLoader]
-        //  - a map-based localization loader [MapLocalizationLoader]
-        // RPLocalizationsDelegate(loaders: [
-        //   AssetLocalizationLoader(),
-        //   MapLocalizationLoader({
-        //     'en': {'app_name': 'Research Package Demo'},
-        //     'da': {'app_name': 'Research Package Demonstration'},
-        //     'fr': {'app_name': 'Demonstration de Research Package'},
-        //   }),
-        // ]),
+        // Research Package translations
+        //  - the translations of informed consent and surveys are located in
+        //    the 'assets/lang/' folder
+        //  - note that only some text is translated -- illustrates that RP
+        //    works both with and without tranlation.
+        RPLocalizations.delegate,
 
         // Built-in localization of basic text for Cupertino widgets
         GlobalCupertinoLocalizations.delegate,
@@ -58,7 +41,9 @@ class MyApp extends StatelessWidget {
       localeResolutionCallback: (locale, supportedLocales) {
         // Check if the current device locale is supported
         for (var supportedLocale in supportedLocales) {
-          if (supportedLocale.languageCode == locale!.languageCode) {
+          if (supportedLocale.languageCode == locale!.languageCode
+              /*  && supportedLocale.countryCode == locale.countryCode */
+              ) {
             return supportedLocale;
           }
         }
@@ -83,111 +68,77 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    RPLocalizations? locale = RPLocalizations.of(context);
+    AssetLocalizations locale = AssetLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: Color(0xff003F6E),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(height: 50),
-            Padding(
-              padding: const EdgeInsets.all(22.0),
-              child: Image.asset(
-                "assets/images/carp_logo.png",
-                height: 80,
-              ),
-            ),
-            Padding(
+      appBar: AppBar(
+        title: Text("Research Package Demo"),
+      ),
+      body: Container(
+        padding: EdgeInsets.all(8),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Padding(
                 padding:
-                    const EdgeInsets.symmetric(vertical: 20, horizontal: 25),
-                child: Column(
-                  children: <Widget>[
-                    Text(
-                      locale?.translate("home.welcome") ?? "Welcome",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16, color: Colors.white),
-                    ),
-                    Container(height: 5),
-                    Text(
-                      locale?.translate("home.questions") ?? "Questions?",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16, color: Colors.white),
-                    ),
-                    Container(height: 5),
-                    Text(
-                      "cph_cachet@gmail.com",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
-                          decoration: TextDecoration.underline),
-                    ),
-                    //Container(height: 50),
-                  ],
-                )),
-            Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: Column(
-                  children: <Widget>[
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xffC32C39),
-                        fixedSize: const Size(300, 60),
-                      ),
-                      child: Text(
-                        locale?.translate("informed_consent") ??
-                            "Informed Consent",
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute<dynamic>(
-                            builder: (context) => InformedConsentPage()));
-                      },
-                    ),
-                    Container(height: 10),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xffC32C39),
-                        fixedSize: const Size(300, 60),
-                      ),
-                      child: Text(
-                        locale?.translate("linear_survey") ?? "Linear Survey",
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute<dynamic>(
-                            builder: (context) => LinearSurveyPage()));
-                      },
-                    ),
-                    Container(height: 10),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xffC32C39),
-                        fixedSize: const Size(300, 60),
-                      ),
-                      child: Text(
-                        locale?.translate("branching_survey") ??
-                            "Branching Survey",
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute<dynamic>(
-                            builder: (context) => NavigableSurveyPage()));
-                      },
-                    ),
-                  ],
-                )),
-          ],
+                    const EdgeInsets.symmetric(vertical: 50, horizontal: 8),
+                child: Text(
+                  locale.translate("app_info"),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextButton(
+                  child: Text(
+                    locale.translate("informed_consent"),
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => InformedConsentPage()));
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextButton(
+                  child: Text(
+                    locale.translate("linear_survey"),
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => LinearSurveyPage()));
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextButton(
+                  child: Text(
+                    locale.translate("branching_survey"),
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => NavigableSurveyPage()));
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: SafeArea(
           child: Padding(
         padding: const EdgeInsets.all(22.0),
         child: Image.asset(
-          "assets/images/cachet-logo-white.png",
-          height: 50,
+          "assets/images/cachet.png",
+          height: 40,
         ),
       )),
     );

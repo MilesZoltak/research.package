@@ -1,23 +1,33 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:research_package/research_package.dart';
-import 'research_package_objects/navigation_step_jump_rule.dart';
-import 'package:carp_serializable/carp_serializable.dart';
+import 'research_package_objects/navigable_survey_objects.dart';
+import 'dart:convert';
 
 class NavigableSurveyPage extends StatelessWidget {
-  void resultCallback(RPTaskResult result) => log(toJsonString(result));
+  String _encode(Object object) =>
+      const JsonEncoder.withIndent(' ').convert(object);
 
-  void cancelCallBack(RPTaskResult? result) => (result == null)
-      ? log("No result")
-      : log("The result so far:\n" + toJsonString(result));
+  void resultCallback(RPTaskResult result) {
+    // Do anything with the result
+    print(_encode(result));
+  }
+
+  void cancelCallBack(RPTaskResult result) {
+    // Do anything with the result at the moment of the cancellation
+    print("The result so far:\n" + _encode(result));
+  }
 
   @override
   Widget build(BuildContext context) {
     return RPUITask(
-      task: stepJumpNavigationExample1,
+      task: navigableSurveyTask,
       onSubmit: resultCallback,
-      onCancel: cancelCallBack,
+      onCancel: (RPTaskResult? result) {
+        if (result == null) {
+          print("No result");
+        } else
+          cancelCallBack(result);
+      },
     );
   }
 }

@@ -6,13 +6,14 @@ part of research_package_ui;
 class RPUIActivityStep extends StatefulWidget {
   final RPActivityStep step;
 
-  const RPUIActivityStep(this.step, {super.key});
+  RPUIActivityStep(this.step);
 
   @override
-  RPUIActivityStepState createState() => RPUIActivityStepState();
+  _RPUIActivityStepState createState() => _RPUIActivityStepState();
 }
 
-class RPUIActivityStepState extends State<RPUIActivityStep> with CanSaveResult {
+class _RPUIActivityStepState extends State<RPUIActivityStep>
+    with CanSaveResult {
   // Dynamic because as the type of result will have can vary
   dynamic _currentActivityBodyResult;
   bool? readyToProceed;
@@ -21,9 +22,9 @@ class RPUIActivityStepState extends State<RPUIActivityStep> with CanSaveResult {
   RPActivityEventLogger? eventLogger;
 
   set currentActivityBodyResult(dynamic currentActivityBodyResult) {
-    _currentActivityBodyResult = currentActivityBodyResult;
+    this._currentActivityBodyResult = currentActivityBodyResult;
     createAndSendResult();
-    if (_currentActivityBodyResult != null) {
+    if (this._currentActivityBodyResult != null) {
       blocQuestion.sendReadyToProceed(true);
     } else {
       blocQuestion.sendReadyToProceed(false);
@@ -45,7 +46,7 @@ class RPUIActivityStepState extends State<RPUIActivityStep> with CanSaveResult {
   // Returning the according step body widget based on the runtimeType of the step
   Widget stepBody(RPActivityStep activityStep) {
     return activityStep.stepBody((result) {
-      currentActivityBodyResult = result;
+      this.currentActivityBodyResult = result;
     }, eventLogger!);
   }
 

@@ -12,10 +12,8 @@ class RPDataTypeSection extends Serializable {
 
   RPDataTypeSection({required this.dataName, required this.dataInformation});
 
-  @override
   Function get fromJsonFunction => _$RPDataTypeSectionFromJson;
   factory RPDataTypeSection.fromJson(Map<String, dynamic> json) =>
       FromJsonFactory().fromJson(json) as RPDataTypeSection;
-  @override
   Map<String, dynamic> toJson() => _$RPDataTypeSectionToJson(this);
 }

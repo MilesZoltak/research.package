@@ -13,7 +13,9 @@ part of research_package_model;
 /// work in any task presented by a task view controller.
 @JsonSerializable(fieldRename: FieldRename.snake, includeIfNull: false)
 class RPTask extends Serializable {
-  RPTask({required this.identifier, this.closeAfterFinished = false});
+  RPTask({required this.identifier, this.closeAfterFinished = false}) {
+    _registerFromJsonFunctions();
+  }
 
   /// A unique identifier of the Task. This identifier connects the Task to its
   /// result ([RPTaskResult]) object.
@@ -38,11 +40,9 @@ class RPTask extends Serializable {
   /// Returns the title of a given [step]
   String getTitleForStep(RPStep step) => '';
 
-  @override
   Function get fromJsonFunction => _$RPTaskFromJson;
   factory RPTask.fromJson(Map<String, dynamic> json) =>
       FromJsonFactory().fromJson(json) as RPTask;
-  @override
   Map<String, dynamic> toJson() => _$RPTaskToJson(this);
 }
 
@@ -51,14 +51,14 @@ class RPTask extends Serializable {
 ///
 /// Used by the counter in [RPUIQuestionStep] in the App Bar
 class RPTaskProgress {
-  final int _current;
-  final int _total;
+  int _current;
+  int _total;
 
   RPTaskProgress(this._current, this._total);
 
   /// Number of the current step
-  int get current => _current;
+  get current => this._current;
 
   /// Total number of steps in task
-  int get total => _total;
+  get total => this._total;
 }

@@ -2,23 +2,24 @@ part of research_package_ui;
 
 class RPUIImageChoiceQuestionBody extends StatefulWidget {
   final RPImageChoiceAnswerFormat answerFormat;
-  final void Function(dynamic) onResultChance;
+  final Function(dynamic) onResultChance;
 
-  const RPUIImageChoiceQuestionBody(
-    this.answerFormat,
-    this.onResultChance, {
-    super.key,
-  });
+  RPUIImageChoiceQuestionBody(this.answerFormat, this.onResultChance);
 
   @override
-  RPUIImageChoiceQuestionBodyState createState() =>
-      RPUIImageChoiceQuestionBodyState();
+  _RPUIImageChoiceQuestionBodyState createState() =>
+      _RPUIImageChoiceQuestionBodyState();
 }
 
-class RPUIImageChoiceQuestionBodyState
+class _RPUIImageChoiceQuestionBodyState
     extends State<RPUIImageChoiceQuestionBody>
     with AutomaticKeepAliveClientMixin<RPUIImageChoiceQuestionBody> {
   RPImageChoice? _selectedItem;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +29,7 @@ class RPUIImageChoiceQuestionBodyState
         ? (locale?.translate('select_image') ?? 'Select an image')
         : (locale?.translate(_selectedItem!.description) ??
             _selectedItem!.description);
-    return SizedBox(
+    return Container(
         height: 160,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -36,7 +37,7 @@ class RPUIImageChoiceQuestionBodyState
             _buildList(context, widget.answerFormat.choices),
             Text(
               text,
-              style: Theme.of(context).textTheme.headlineSmall,
+              style: Theme.of(context).textTheme.headline5,
             )
           ],
         ));
@@ -44,8 +45,8 @@ class RPUIImageChoiceQuestionBodyState
 
   Row _buildList(BuildContext context, List<RPImageChoice> items) {
     List<Widget> list = [];
-    for (var item in items) {
-      list.add(
+    items.forEach(
+      (item) => list.add(
         InkWell(
           borderRadius: BorderRadius.circular(15),
           onTap: () {
@@ -80,8 +81,8 @@ class RPUIImageChoiceQuestionBodyState
             child: Image.asset(item.imageUrl),
           ),
         ),
-      );
-    }
+      ),
+    );
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: list,

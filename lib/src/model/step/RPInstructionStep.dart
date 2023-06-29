@@ -1,7 +1,7 @@
 part of research_package_model;
 
-/// A step which can be used to show instructions and other information
-/// to the participant.
+/// A step which can be used to communicate instructions and other information
+/// to the participants.
 /// Usually it is used as the first step in a Task explaining the task.
 @JsonSerializable(fieldRename: FieldRename.snake, includeIfNull: false)
 class RPInstructionStep extends RPStep {
@@ -20,23 +20,21 @@ class RPInstructionStep extends RPStep {
   /// If `null` nothing is shown.
   String? imagePath;
 
-  RPInstructionStep({
-    required super.identifier,
-    required super.title,
-    super.text,
-    super.optional,
-    this.detailText,
-    this.footnote,
-    this.imagePath,
-  });
+  RPInstructionStep(
+      {required String identifier,
+      String? text,
+      required String title,
+      this.detailText,
+      this.footnote,
+      this.imagePath})
+      : super(identifier: identifier, title: title, text: text);
 
+  /// The widget (UI representation) of the step
   @override
   Widget get stepWidget => RPUIInstructionStep(step: this);
 
-  @override
   Function get fromJsonFunction => _$RPInstructionStepFromJson;
   factory RPInstructionStep.fromJson(Map<String, dynamic> json) =>
       FromJsonFactory().fromJson(json) as RPInstructionStep;
-  @override
   Map<String, dynamic> toJson() => _$RPInstructionStepToJson(this);
 }

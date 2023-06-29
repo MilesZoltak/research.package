@@ -14,23 +14,23 @@ import 'dart:convert';
 
 // Imports
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:audiofileplayer/audiofileplayer.dart';
 import 'package:signature/signature.dart';
 import 'package:simple_html_css/simple_html_css.dart';
 
 import 'model.dart';
 
 // Library elements
-part 'src/localization/RPLocalizations.dart';
+part 'src/localization/RPLocalization.dart';
 part 'src/localization/AssetsLocalization.dart';
 part 'src/loggers/RPActivityEventLogger.dart';
+part 'src/ui/QuestionBody/RPUIBooleanQuestionBody.dart';
 part 'src/ui/QuestionBody/RPUIChoiceQuestionBody.dart';
 part 'src/ui/QuestionBody/RPUIDateTimeQuestionBody.dart';
 part 'src/ui/QuestionBody/RPUIImageChoiceQuestionBody.dart';
 part 'src/ui/QuestionBody/RPUIIntegerQuestionBody.dart';
-part 'src/ui/QuestionBody/RPUIDoubleQuestionBody.dart';
 part 'src/ui/QuestionBody/RPUISliderQuestionBody.dart';
 part 'src/ui/QuestionBody/RPUITextInputQuestionBody.dart';
 part 'src/ui/RPUICompletionStep.dart';
@@ -41,4 +41,3 @@ part 'src/ui/RPUIQuestionStep.dart';
 part 'src/ui/RPUITask.dart';
 part 'src/ui/RPUIVisualConsentStep.dart';
 part 'src/ui/RPUIActivityStep.dart';
-part 'src/ui/RPUITimerStep.dart';

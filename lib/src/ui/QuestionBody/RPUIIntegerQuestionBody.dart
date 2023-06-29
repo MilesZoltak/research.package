@@ -2,19 +2,16 @@ part of research_package_ui;
 
 class RPUIIntegerQuestionBody extends StatefulWidget {
   final RPIntegerAnswerFormat answerFormat;
-  final void Function(dynamic) onResultChange;
+  final Function(dynamic) onResultChange;
 
-  const RPUIIntegerQuestionBody(
-    this.answerFormat,
-    this.onResultChange, {
-    super.key,
-  });
+  RPUIIntegerQuestionBody(this.answerFormat, this.onResultChange);
 
   @override
-  RPUIIntegerQuestionBodyState createState() => RPUIIntegerQuestionBodyState();
+  _RPUIIntegerQuestionBodyState createState() =>
+      _RPUIIntegerQuestionBodyState();
 }
 
-class RPUIIntegerQuestionBodyState extends State<RPUIIntegerQuestionBody>
+class _RPUIIntegerQuestionBodyState extends State<RPUIIntegerQuestionBody>
     with AutomaticKeepAliveClientMixin<RPUIIntegerQuestionBody> {
   late TextEditingController _textEditingController;
   String? _errorMessage;
@@ -62,31 +59,26 @@ class RPUIIntegerQuestionBodyState extends State<RPUIIntegerQuestionBody>
     super.build(context);
     RPLocalizations? locale = RPLocalizations.of(context);
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: EdgeInsets.all(8),
       alignment: Alignment.topLeft,
-      child: TextFormField(
-        controller: _textEditingController,
-        decoration: InputDecoration(
-          filled: true,
-          hintText: locale?.translate('tap_to_answer') ?? "Tap to answer",
-          helperStyle:
-              TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
-          suffix: widget.answerFormat.suffix != null
-              ? Text(locale?.translate(widget.answerFormat.suffix!) ??
-                  widget.answerFormat.suffix!)
-              : null,
-          errorText: _valid ? null : _errorMessage,
-          focusedBorder: UnderlineInputBorder(
-            borderSide: BorderSide(
-              color: (CupertinoTheme.of(context).primaryColor ==
-                      CupertinoColors.activeBlue)
-                  ? Theme.of(context).primaryColor
-                  : CupertinoTheme.of(context).primaryColor,
-            ),
+      child: Container(
+        child: TextFormField(
+          controller: _textEditingController,
+          decoration: InputDecoration(
+            filled: true,
+            hintText: locale?.translate('tap_to_answer') ?? "Tap to answer",
+            helperStyle:
+                TextStyle(color: Theme.of(context).textTheme.bodyText1?.color),
+            suffix: widget.answerFormat.suffix != null
+                ? Text(locale?.translate(widget.answerFormat.suffix!) ??
+                    widget.answerFormat.suffix!)
+                : null,
+            errorText: _valid ? null : _errorMessage,
           ),
+          onChanged: (text) => _validate(text, locale),
         ),
-        onChanged: (text) => _validate(text, locale),
       ),
+      // ),
     );
   }
 

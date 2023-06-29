@@ -14,29 +14,29 @@ class RPOrderedTask extends RPTask {
   /// The list of [RPStep]s of the task
   List<RPStep> steps;
 
-  RPOrderedTask({
-    required super.identifier,
-    super.closeAfterFinished = true,
-    required this.steps,
-  }) {
-    _numberOfQuestionSteps = 0;
-    _isConsentTask = false;
+  RPOrderedTask(
+      {required String identifier,
+      required this.steps,
+      bool closeAfterFinished = true})
+      : super(identifier: identifier, closeAfterFinished: closeAfterFinished) {
+    this._numberOfQuestionSteps = 0;
+    this._isConsentTask = false;
 
-    for (var step in steps) {
+    steps.forEach((step) {
       // Counting the Question or FormStep items
-      if (step is RPQuestionStep) _numberOfQuestionSteps++;
+      if (step is RPQuestionStep) this._numberOfQuestionSteps++;
       // If there's a Consent Review Step among the steps it means the task is
       // a Consent Task
       if (step.runtimeType == RPConsentReviewStep) {
         _isConsentTask = true;
       }
-    }
+    });
   }
 
   /// Returns the step after a specified step if there's any. If the specified
-  /// step is `null` then it returns the first step.
+  /// step is ```null``` then it returns the first step.
   ///
-  /// Returns `null` if [step] was the last one in the sequence.
+  /// Returns ```null``` if [step] was the last one in the sequence.
   @override
   RPStep? getStepAfterStep(RPStep? step, RPTaskResult? result) {
     if (step == null) return steps.first;
@@ -46,7 +46,7 @@ class RPOrderedTask extends RPTask {
   }
 
   /// Returns the step that precedes the specified step, if there is one.
-  /// If the specified step is `null` then it returns the last step.
+  /// If the specified step is ```null``` then it returns the last step.
   ///
   /// Returns `null` if [step] was the first one in the sequence.
   @override
@@ -62,26 +62,33 @@ class RPOrderedTask extends RPTask {
   @override
   RPStep? getStepWithIdentifier(String identifier) {
     for (var step in steps) {
-      if (identifier == step.identifier) return step;
+      if (identifier == step.identifier) {
+        return step;
+      }
     }
     print("Problem: Task Steps out of index");
     return null;
   }
 
+//  @override
+//  RPTaskProgress getProgressOfCurrentStep(RPStep step, RPTaskResult result) {
+//    int current = step == null ? -1 : _steps.indexOf(step);
+//
+//    return RPTaskProgress(current, _steps.length);
+//  }
+
   @override
   String getTitleForStep(RPStep step) => step.title;
 
-  /// Returns `true` if the task is a Consent Task. It is considered a
+  /// Returns ```true``` if the task is a Consent Task. It is considered a
   /// Consent Task if it has an [RPConsentReviewStep]
-  bool get isConsentTask => _isConsentTask;
+  bool get isConsentTask => this._isConsentTask;
 
   /// The number of question steps in the task
-  int get numberOfQuestionSteps => _numberOfQuestionSteps;
+  int get numberOfQuestionSteps => this._numberOfQuestionSteps;
 
-  @override
   Function get fromJsonFunction => _$RPOrderedTaskFromJson;
   factory RPOrderedTask.fromJson(Map<String, dynamic> json) =>
       FromJsonFactory().fromJson(json) as RPOrderedTask;
-  @override
   Map<String, dynamic> toJson() => _$RPOrderedTaskToJson(this);
 }

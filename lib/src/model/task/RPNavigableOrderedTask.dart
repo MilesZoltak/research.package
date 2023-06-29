@@ -4,20 +4,29 @@ part of research_package_model;
 /// behavior inherited from the [RPOrderedTask] class.
 ///
 /// It's able to show different questions based on previous answers by using
-/// [RPStepNavigationRule]s.
+/// [RPPredicateStepNavigationRule]s.
 /// This task allows participant to go back to/looping through previous questions.
 /// In that case only the last answer given to the question will be saved.
 @JsonSerializable(fieldRename: FieldRename.snake, includeIfNull: false)
 class RPNavigableOrderedTask extends RPOrderedTask {
-  /// A dictionary of step identifier Strings and their corresponding navigation
-  /// rule([RPStepNavigationRule]).
-  Map<String, RPStepNavigationRule> stepNavigationRules = {};
+  late Map<String, RPStepNavigationRule> _stepNavigationRules;
 
   RPNavigableOrderedTask({
-    required super.identifier,
-    required super.steps,
-    super.closeAfterFinished,
-  });
+    required String identifier,
+    required List<RPStep> steps,
+    closeAfterFinished = true,
+  }) : super(
+          identifier: identifier,
+          steps: steps,
+          closeAfterFinished: closeAfterFinished,
+        ) {
+    _stepNavigationRules = Map<String, RPStepNavigationRule>();
+  }
+
+  /// A dictionary of step identifier Strings and their corresponding navigation
+  /// rule([RPStepNavigationRule]).
+  Map<String, RPStepNavigationRule> get stepNavigationRules =>
+      this._stepNavigationRules;
 
   /// Returns the step after a specified step if there's any, taking the
   /// [RPStepNavigationRule]s into consideration.
@@ -26,156 +35,101 @@ class RPNavigableOrderedTask extends RPOrderedTask {
   /// Returns `null` if [step] was the last one in the sequence.
   @override
   RPStep? getStepAfterStep(RPStep? step, RPTaskResult? result) {
-    RPStep? stepToReturn;
+    RPStep? _stepToReturn;
 
-    void returnNextQuestion() {
+    void _returnNextQuestion() {
       int nextIndex = (step != null) ? steps.indexOf(step) + 1 : 0;
 
       if (nextIndex < steps.length) {
-        stepToReturn = steps[nextIndex];
+        _stepToReturn = steps[nextIndex];
       } else {
-        stepToReturn = null;
+        _stepToReturn = null;
       }
     }
 
     if (step == null) {
-      stepToReturn = steps.first;
-      return stepToReturn;
+      _stepToReturn = steps.first;
+      return _stepToReturn;
     }
 
-    if (stepNavigationRules.containsKey(step.identifier)) {
-      RPStepNavigationRule rule = stepNavigationRules[step.identifier]!;
+    if (_stepNavigationRules.containsKey(step.identifier)) {
+      RPStepNavigationRule rule = _stepNavigationRules[step.identifier]!;
 
       switch (rule.runtimeType) {
         case RPStepReorganizerRule:
-          RPStepReorganizerRule reorganizerRule = rule as RPStepReorganizerRule;
-          RPStepResult? stepResult;
-          if (step.runtimeType == RPFormStep) {
-            RPTaskResult? recentTaskResult = blocTask.lastTaskResult;
-            RPStepResult? foundStepResult;
-
-            if (recentTaskResult != null) {
-              recentTaskResult.results.forEach((key, stepResult) {
-                if (stepResult is RPStepResult) {
-                  try {
-                    // ensure that we are looking up only until the first match
-                    foundStepResult ??=
-                        stepResult.getResultForIdentifier(step.identifier)
-                            as RPStepResult;
-                  } catch (e) {
-                    print(
-                        "No matching result found in this FormStep, proceeding to the next one (if any)");
-                  }
-                }
-              });
-            } else {
-              throw ("Error: No task result is available");
-            }
-            stepResult = foundStepResult;
-          } else {
-            RPTaskResult? recentTaskResult = blocTask.lastTaskResult;
-            RPStepResult foundStepResult;
-
-            if (recentTaskResult != null) {
-              foundStepResult = recentTaskResult
-                  .getStepResultForIdentifier(step.identifier) as RPStepResult;
-            } else {
-              throw ("Error: No task result is available");
-            }
-            stepResult = foundStepResult;
-          }
-
+          RPStepResult tempResult =
+              (rule as RPStepReorganizerRule).resultSelector.getResult();
           List identifiersToKeep = [];
-          for (var element
-              in (stepResult!.results["answer"] as List<RPChoice>)) {
-            String id = reorganizerRule.reorderingMap[element.value]!;
+          (tempResult.results["answer"] as List<RPChoice>).forEach((element) {
+            String id = (rule).reorderingMap[element.value]!;
             identifiersToKeep.add(id);
-          }
+          });
 
           steps.removeWhere(
               (step) => !identifiersToKeep.contains(step.identifier));
 
           if (steps.last.runtimeType == RPCompletionStep) {
-            RPStep lastStep = steps.last;
-            steps.add(lastStep);
+            RPStep _lastStep = steps.last;
+            steps.add(_lastStep);
           }
 
-          returnNextQuestion();
+          _returnNextQuestion();
 
           break;
         case RPStepJumpRule:
           RPStepJumpRule jumpRule = (rule as RPStepJumpRule);
-          RPStepResult? stepResult;
-          if (step.runtimeType == RPFormStep) {
-            RPTaskResult? recentTaskResult = blocTask.lastTaskResult;
-            RPStepResult? foundStepResult;
+          RPStepResult tempResult = rule.resultSelector.getResult();
+          String? answer =
+              jumpRule.answerMap[tempResult.results["answer"].first.value];
 
-            if (recentTaskResult != null) {
-              recentTaskResult.results.forEach((key, stepResult) {
-                if (stepResult is RPStepResult) {
-                  try {
-                    // ensure that we are looking up only until the first match
-                    foundStepResult ??=
-                        stepResult.getResultForIdentifier(step.identifier)
-                            as RPStepResult;
-                  } catch (e) {
-                    print(
-                        "No matching result found in this FormStep, proceeding to the next one (if any)");
-                  }
+          bool hadStepId = false;
+          steps.forEach((step) {
+            if (step.identifier == answer) {
+              _stepToReturn = step;
+              hadStepId = true;
+            }
+          });
+          if (!hadStepId) {
+            _returnNextQuestion();
+          }
+
+          break;
+        case RPPredicateStepNavigationRule:
+          (rule as RPPredicateStepNavigationRule)
+              .resultPredicatesWithDestinationIdentifiers
+              .forEach((resultPredicate, destinationStepIdentifier) {
+            // Catching the first
+            if (resultPredicate.getPredictionResult()) {
+              steps.forEach((step) {
+                if (step.identifier == destinationStepIdentifier) {
+                  _stepToReturn = step;
                 }
               });
             } else {
-              throw ("Error: No task result is available");
+              _returnNextQuestion();
             }
-            stepResult = foundStepResult;
-          } else {
-            RPTaskResult? recentTaskResult = blocTask.lastTaskResult;
-            RPStepResult foundStepResult;
-
-            if (recentTaskResult != null) {
-              foundStepResult = recentTaskResult
-                  .getStepResultForIdentifier(step.identifier) as RPStepResult;
-            } else {
-              throw ("Error: No task result is available");
-            }
-            stepResult = foundStepResult;
-          }
-
-          String? answer =
-              jumpRule.answerMap[stepResult!.results["answer"].first.value];
-
-          bool hadStepId = false;
-          for (var step in steps) {
-            if (step.identifier == answer) {
-              stepToReturn = step;
-              hadStepId = true;
-            }
-          }
-          if (!hadStepId) {
-            returnNextQuestion();
-          }
-
+          });
           break;
         case RPDirectStepNavigationRule:
           String destinationStepIdentifier =
               (rule as RPDirectStepNavigationRule).destinationStepIdentifier;
-          for (var step in steps) {
+          steps.forEach((step) {
             if (step.identifier == destinationStepIdentifier) {
-              stepToReturn = step;
+              _stepToReturn = step;
             }
-          }
+          });
           break;
         default:
-          throw ("Navigation Rule's type ${stepNavigationRules[step.identifier].runtimeType} is not a navigation rule type");
+          throw ("Navigation Rule's type ${_stepNavigationRules[step.identifier].runtimeType} is not a navigation rule type");
       }
     } else {
-      returnNextQuestion();
+      _returnNextQuestion();
     }
 
-    return stepToReturn;
+    return _stepToReturn;
   }
 
-  /// Adds a navigation rule to a step using its identifier.
+  /// Adds a navigation rule to step using its identifier.
   ///
   /// ```
   ///   RPNavigableOrderedTask navigableSurveyTask = RPNavigableOrderedTask(
@@ -190,25 +144,23 @@ class RPNavigableOrderedTask extends RPOrderedTask {
   /// ```
   void setNavigationRuleForTriggerStepIdentifier(
       RPStepNavigationRule stepNavigationRule, String triggerStepIdentifier) {
-    stepNavigationRules[triggerStepIdentifier] = stepNavigationRule;
+    _stepNavigationRules[triggerStepIdentifier] = stepNavigationRule;
   }
 
   /// Returns the navigation rule for the given step identifier
   RPStepNavigationRule navigationRuleForTriggerStepIdentifier(
       String triggerStepIdentifier) {
-    return stepNavigationRules[triggerStepIdentifier]!;
+    return _stepNavigationRules[triggerStepIdentifier]!;
   }
 
   /// Removes the navigation rule from the given step using its identifier
   void removeNavigationRuleForTriggerStepIdentifier(
       String triggerStepIdentifier) {
-    stepNavigationRules.remove(triggerStepIdentifier);
+    _stepNavigationRules.remove(triggerStepIdentifier);
   }
 
-  @override
   Function get fromJsonFunction => _$RPNavigableOrderedTaskFromJson;
   factory RPNavigableOrderedTask.fromJson(Map<String, dynamic> json) =>
       FromJsonFactory().fromJson(json) as RPNavigableOrderedTask;
-  @override
   Map<String, dynamic> toJson() => _$RPNavigableOrderedTaskToJson(this);
 }

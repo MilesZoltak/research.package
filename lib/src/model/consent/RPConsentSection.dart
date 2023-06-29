@@ -14,6 +14,7 @@ class RPConsentSection extends Serializable {
   /// The title of the consent section which appears both in [RPVisualConsentStep]
   /// and [RPConsentReviewStep].
   late String title;
+  String? formalTitle;
 
   /// A short summary of the section. It appears during [RPVisualConsentStep]
   String? summary;
@@ -30,7 +31,7 @@ class RPConsentSection extends Serializable {
   List<RPDataTypeSection>? dataTypes;
 
   /// A custom illustration (an [Image] or [Icon] to show for Custom [RPConsentSectionType]
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   Widget? customIllustration;
 
   /// Returns a populated object with the given [type].
@@ -56,18 +57,16 @@ class RPConsentSection extends Serializable {
             : _titleForConsentSectionType(type);
   }
 
-  @override
   Function get fromJsonFunction => _$RPConsentSectionFromJson;
   factory RPConsentSection.fromJson(Map<String, dynamic> json) =>
       FromJsonFactory().fromJson(json) as RPConsentSection;
-  @override
   Map<String, dynamic> toJson() => _$RPConsentSectionToJson(this);
 }
 
 /// Enum containing the available types for [RPConsentSection].
 ///
 /// Every type has a title and a logo associated to it.
-/// Use [Custom] to create your own section type and avoid any pre-population
+/// Use [Custom] to create your own section type and avoid any prepopulation
 /// (title, logo, animation).
 /// See more at: [http://researchkit.org/docs/Constants/ORKConsentSectionType.html]
 enum RPConsentSectionType {

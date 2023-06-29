@@ -20,11 +20,9 @@ class RPChoiceAnswerFormat extends RPAnswerFormat {
         : RPQuestionType.MultipleChoice;
   }
 
-  @override
   Function get fromJsonFunction => _$RPChoiceAnswerFormatFromJson;
   factory RPChoiceAnswerFormat.fromJson(Map<String, dynamic> json) =>
       FromJsonFactory().fromJson(json) as RPChoiceAnswerFormat;
-  @override
   Map<String, dynamic> toJson() => _$RPChoiceAnswerFormatToJson(this);
 }
 
@@ -39,13 +37,11 @@ class RPChoice extends Serializable {
   int value;
 
   /// The detailed text to show if needed.
-  /// Shown as a Info-icon which takes the user to a detail page with the [detailText]
   String? detailText;
 
   /// If set to `true`, then the user can enter the text instead of the default
   /// [text] which was provided. The [value] remains the same.
   /// By default it is set to false.
-  /// [text] will be shown as a `hintText`
   bool isFreeText = false;
 
   /// Default constructor.
@@ -56,10 +52,8 @@ class RPChoice extends Serializable {
     this.detailText,
   }) : super();
 
-  @override
   Function get fromJsonFunction => _$RPChoiceFromJson;
   factory RPChoice.fromJson(Map<String, dynamic> json) =>
       FromJsonFactory().fromJson(json) as RPChoice;
-  @override
   Map<String, dynamic> toJson() => _$RPChoiceToJson(this);
 }

@@ -1,9 +1,14 @@
 import 'package:test/test.dart';
 import 'dart:convert';
 import 'package:research_package/research_package.dart';
-import 'package:carp_serializable/carp_serializable.dart';
 
+/// Tests are focusing mainly on Object -> JSON direction since the current
+/// use-case for Research Package doesn't include the other way around,
+/// only uploading results to server
 void main() {
+  String _encode(Object object) =>
+      const JsonEncoder.withIndent(' ').convert(object);
+
   RPConsentSignature signature = RPConsentSignature(identifier: "signatureID");
 
   RPConsentSection overviewSection =
@@ -51,13 +56,6 @@ void main() {
     answerFormat: choiceAnswerFormat,
   );
 
-  RPActivityStep activityStep1 = RPActivityStep(
-    identifier: 'act_1',
-    includeInstructions: true,
-    includeResults: false,
-  );
-  RPActivityStep activityStep2 = RPActivityStep(identifier: 'act_2');
-
   RPFormStep formStep = RPFormStep(
     identifier: 'form_step_1',
     steps: [choiceQuestionStep1, choiceQuestionStep2],
@@ -66,13 +64,11 @@ void main() {
 
   RPStepResult stepResult1 = RPStepResult(
       identifier: choiceQuestionStep1.identifier,
-      questionTitle: choiceQuestionStep1.title,
       answerFormat: choiceQuestionStep1.answerFormat);
   stepResult1.setResult(5);
 
   RPStepResult stepResult2 = RPStepResult(
-      identifier: choiceQuestionStep2.identifier,
-      questionTitle: choiceQuestionStep2.title,
+      identifier: choiceQuestionStep1.identifier,
       answerFormat: choiceQuestionStep2.answerFormat);
   stepResult2.setResult(1);
 
@@ -87,17 +83,13 @@ void main() {
       "pngbytes in form of a long long string");
 
   RPConsentSignatureResult consentSignatureResult = RPConsentSignatureResult(
-      identifier: 'consentSignatureID',
-      consentDocument: consentDocument,
-      signature: signatureResult);
+      'consentSignatureID', consentDocument, signatureResult);
 
   // RPConsentReviewStep consentReviewStep =
   //     RPConsentReviewStep(identifier: 'consentReviewStepID', consentDocument: consentDocument);
 
-  RPStepResult consentReviewStepResult = RPStepResult(
-      identifier: '',
-      questionTitle: choiceQuestionStep1.title,
-      answerFormat: RPFormAnswerFormat());
+  RPStepResult consentReviewStepResult =
+      RPStepResult(identifier: '', answerFormat: null);
   consentReviewStepResult.setResult(consentSignatureResult);
 
   RPTaskResult consentTaskResult =
@@ -105,82 +97,79 @@ void main() {
   consentTaskResult.setStepResultForIdentifier(
       "signature", consentReviewStepResult);
 
-  setUp(() {
-    // initialize the package and json deserialization functions
-    ResearchPackage.ensureInitialized();
-  });
+  setUp(() {});
 
   group('Consent Document', () {
     test('RPConsentDocument -> JSON', () {
-      print(toJsonString(consentDocument));
+      print(_encode(consentDocument));
 
       expect(consentDocument.title, "WHO5 Consent");
     });
 
     test('JSON -> RPConsentDocument, assert document title', () {
-      final consentDocumentJson = toJsonString(consentDocument);
+      final consentDocumentJson = _encode(consentDocument);
 
       RPConsentDocument consentDocument_2 = RPConsentDocument.fromJson(
           json.decode(consentDocumentJson) as Map<String, dynamic>);
       expect(consentDocument_2.title, consentDocument.title);
 
-      print(toJsonString(consentDocument_2));
+      print(_encode(consentDocument_2));
     });
 
     // Consent Section
 
     test('RPConsentSection -> JSON', () {
-      print(toJsonString(overviewSection));
+      print(_encode(overviewSection));
 
       expect(overviewSection.content, "Overview content");
     });
 
     test('JSON -> RPConsentDocument, assert document title', () {
-      final consentDocumentJson = toJsonString(consentDocument);
+      final consentDocumentJson = _encode(consentDocument);
 
       RPConsentDocument consentDocument_2 = RPConsentDocument.fromJson(
           json.decode(consentDocumentJson) as Map<String, dynamic>);
       expect(consentDocument_2.title, consentDocument.title);
 
-      print(toJsonString(consentDocument_2));
+      print(_encode(consentDocument_2));
     });
 
     test('RPConsentSignature -> JSON', () {
-      print(toJsonString(signature));
+      print(_encode(signature));
 
       expect(signature.identifier, "signatureID");
     });
 
     test('JSON -> RPConsentSignature', () {
-      final consentSignatureJson = toJsonString(signature);
+      final consentSignatureJson = _encode(signature);
 
       RPConsentSignature signature_2 = RPConsentSignature.fromJson(
           json.decode(consentSignatureJson) as Map<String, dynamic>);
       expect(signature_2.identifier, 'signatureID');
 
-      print(toJsonString(signature_2));
+      print(_encode(signature_2));
     });
   });
 
   group('Choice Answer', () {
     test('RPAnswerFormat -> JSON', () {
-      print(toJsonString(RPAnswerFormat()..questionType = RPQuestionType.Date));
+      print(_encode(RPAnswerFormat()..questionType = RPQuestionType.Date));
     });
 
     test('RPChoiceAnswerFormat -> JSON', () {
-      print(toJsonString(choiceAnswerFormat));
+      print(_encode(choiceAnswerFormat));
 
       expect(choiceAnswerFormat.choices, choices);
     });
 
     test('RPChoice -> JSON', () {
-      print(toJsonString(choices.first));
+      print(_encode(choices.first));
 
       expect(choices.first.value, 5);
     });
 
     test('JSON -> RPChoiceAnswerFormat', () {
-      final choiceJson = toJsonString(choiceAnswerFormat);
+      final choiceJson = _encode(choiceAnswerFormat);
 
       RPAnswerFormat answers = RPAnswerFormat.fromJson(
           json.decode(choiceJson) as Map<String, dynamic>);
@@ -190,28 +179,28 @@ void main() {
               answerStyle: RPChoiceAnswerStyle.SingleChoice,
               choices: []).runtimeType);
       expect(answers.questionType, RPQuestionType.SingleChoice);
-      print(toJsonString(answers));
+      print(_encode(answers));
     });
   });
 
   group('Steps', () {
     test('RPQuestionStep -> JSON', () {
-      print(toJsonString(choiceQuestionStep1));
+      print(_encode(choiceQuestionStep1));
     });
 
     test('RPInstructionStep -> JSON', () {
-      print(toJsonString(RPInstructionStep(
+      print(_encode(RPInstructionStep(
           identifier: '123',
           title: 'Jakob is here...',
           detailText: '... more details.')));
     });
 
     test('RPFormStep -> JSON', () {
-      print(toJsonString(formStep));
+      print(_encode(formStep));
     });
 
     test('JSON -> RPQuestionStep', () {
-      final stepJson = toJsonString(choiceQuestionStep1);
+      final stepJson = _encode(choiceQuestionStep1);
 
       RPQuestionStep step = RPQuestionStep.fromJson(
           json.decode(stepJson) as Map<String, dynamic>);
@@ -221,30 +210,22 @@ void main() {
                   identifier: '123', title: '', answerFormat: RPAnswerFormat())
               .runtimeType);
       expect(step.identifier, choiceQuestionStep1.identifier);
-      print(toJsonString(step));
-    });
-
-    test('RPActivityStep -> JSON', () {
-      print(toJsonString(activityStep1));
-      print(toJsonString(activityStep2));
+      print(_encode(step));
     });
   });
-
   group('Results', () {
     test('RPStepResult -> JSON', () {
-      print((stepResult1));
-      print((stepResult1.toJson()));
-      print(toJsonString(stepResult1));
+      print(_encode(stepResult1));
       expect(stepResult1.results["answer"], 5);
     });
 
     test('RPTaskResult (Survey) -> JSON', () {
-      print(toJsonString(surveyTaskResult));
+      print(_encode(surveyTaskResult));
       expect(surveyTaskResult.results["questionID1"], stepResult1);
     });
 
     test('RPTaskResult (Consent Document) -> JSON', () {
-      print(toJsonString(consentTaskResult));
+      print(_encode(consentTaskResult));
       expect(consentTaskResult.results["signature"], consentReviewStepResult);
     });
   });

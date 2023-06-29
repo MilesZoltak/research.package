@@ -2,15 +2,17 @@
 
 part of research_package_model;
 
-bool _fromJsonFunctionsRegistered = false;
+bool _fromJsonFunctionsRegistrered = false;
 
 /// Register all the fromJson functions for the deployment domain classes.
 void _registerFromJsonFunctions() {
-  if (_fromJsonFunctionsRegistered) return;
-  _fromJsonFunctionsRegistered = true;
+  if (_fromJsonFunctionsRegistrered) return;
+  _fromJsonFunctionsRegistrered = true;
 
   // AnswerFormat classes
   FromJsonFactory().register(RPAnswerFormat());
+  FromJsonFactory()
+      .register(RPBooleanAnswerFormat(falseText: '', trueText: ''));
   FromJsonFactory().register(RPChoiceAnswerFormat(
       answerStyle: RPChoiceAnswerStyle.SingleChoice, choices: []));
   FromJsonFactory().register(RPChoice(text: '', value: 1));
@@ -20,26 +22,21 @@ void _registerFromJsonFunctions() {
   FromJsonFactory().register(RPImageChoiceAnswerFormat(choices: []));
   FromJsonFactory().register(RPImageChoice(description: '', imageUrl: ''));
   FromJsonFactory().register(RPIntegerAnswerFormat(maxValue: 1, minValue: 1));
-  FromJsonFactory().register(RPDoubleAnswerFormat(maxValue: 1, minValue: 1));
   FromJsonFactory()
       .register(RPSliderAnswerFormat(divisions: 1, maxValue: 1, minValue: 1));
   FromJsonFactory().register(RPTextAnswerFormat());
 
   // Steps classes
   FromJsonFactory().register(RPStep(identifier: '', title: ''));
-  FromJsonFactory().register(RPActivityStep(identifier: ''));
   FromJsonFactory().register(RPQuestionStep(
       identifier: '', title: '', answerFormat: RPAnswerFormat()));
   FromJsonFactory().register(RPInstructionStep(identifier: '', title: ''));
-  FromJsonFactory().register(
-      RPTimerStep(identifier: '', timeout: const Duration(), title: ''));
   FromJsonFactory().register(RPFormStep(identifier: '', title: '', steps: []));
   FromJsonFactory().register(RPCompletionStep(identifier: '', title: ''));
 
   // Consent Document classes
   FromJsonFactory().register(RPConsentReviewStep(
       identifier: '',
-      title: '',
       consentDocument: RPConsentDocument(sections: [], title: '')));
   FromJsonFactory().register(RPVisualConsentStep(
       identifier: '',
@@ -56,12 +53,6 @@ void _registerFromJsonFunctions() {
     dataName: '',
     dataInformation: '',
   ));
-
-  // Navigation rule classes
-  FromJsonFactory()
-      .register(RPDirectStepNavigationRule(destinationStepIdentifier: ''));
-  FromJsonFactory().register(RPStepJumpRule(answerMap: {}));
-  FromJsonFactory().register(RPStepReorganizerRule(reorderingMap: {}));
 }
 
 // auto generate json code (.g files) with:

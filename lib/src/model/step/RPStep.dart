@@ -10,7 +10,10 @@ part of research_package_model;
 /// form a task (an [RPTask] object)
 @JsonSerializable(fieldRename: FieldRename.snake, includeIfNull: false)
 class RPStep extends Serializable {
-  /// A unique identifier of the Step. This identifier connects the step to its
+  @JsonKey(ignore: true)
+  late Widget _stepWidget;
+
+  /// A unique identifier of the Step. This identifier connects the Step to its
   /// result ([RPResult]) object.
   final String identifier;
 
@@ -25,39 +28,35 @@ class RPStep extends Serializable {
   /// differently.
   ///
   /// For e.g. the [text] of [RPCompletionStep] is rendered in the middle of
-  /// the screen while the [RPQuestionStep] does not even use it.
+  /// the screen while the
+  /// [RPQuestionStep] does not even use it.
   String? text;
 
-  /// Can this step be skipped? If so, the result for the step will be `null`.
+  /// If set to `true` the step can be skipped. In that case the result for
+  /// the step will be `null`.
   bool optional;
 
-  /// Create a [RPStep] object with a unique [identifier], a [title], and
-  /// a [text] to be displayed.
-  RPStep({
-    required this.identifier,
-    required this.title,
-    this.text,
-    this.optional = false,
-  });
+  /// Create a step object with the given [title]. Different types of Steps
+  /// are using the [title] text differently.
+  RPStep(
+      {required this.identifier,
+      required this.title,
+      this.text,
+      this.optional = false});
 
-  /// The widget (UI representation) of the step.
-  ///
-  /// [RPQuestionStep]s don't have it because their UI representation depends
-  /// on the Answer Format.
+  /// The widget (UI representation) of the step. [RPQuestionStep]s don't have it
+  /// because their UI representation depends on the Answer Format.
   /// Their Answer Format is assessed by [RPUIQuestionStep] or [RPUIFormStep] and
   /// they return the corresponding UI.
   ///
   /// When needed, it should be overridden to fit the different types of Steps.
-  Widget? get stepWidget => null;
+  Widget get stepWidget => _stepWidget;
 
-  @override
   Function get fromJsonFunction => _$RPStepFromJson;
   factory RPStep.fromJson(Map<String, dynamic> json) =>
       FromJsonFactory().fromJson(json) as RPStep;
-  @override
   Map<String, dynamic> toJson() => _$RPStepToJson(this);
 }
 
-/// Status of a [RPStep].
-/// Used in the Bloc so the Task Widget is notified about step navigation.
-enum RPStepStatus { Finished, Skipped, Canceled, Ongoing, Back }
+/// Status to be sent to the Bloc so the Task Widget is notified about the navigation
+enum RPStepStatus { Finished, Canceled, Ongoing, Back }

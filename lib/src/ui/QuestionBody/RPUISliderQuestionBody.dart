@@ -2,19 +2,15 @@ part of research_package_ui;
 
 class RPUISliderQuestionBody extends StatefulWidget {
   final RPSliderAnswerFormat answerFormat;
-  final void Function(dynamic) onResultChange;
+  final Function(dynamic) onResultChange;
 
-  const RPUISliderQuestionBody(
-    this.answerFormat,
-    this.onResultChange, {
-    super.key,
-  });
+  RPUISliderQuestionBody(this.answerFormat, this.onResultChange);
 
   @override
-  RPUISliderQuestionBodyState createState() => RPUISliderQuestionBodyState();
+  _RPUISliderQuestionBodyState createState() => _RPUISliderQuestionBodyState();
 }
 
-class RPUISliderQuestionBodyState extends State<RPUISliderQuestionBody>
+class _RPUISliderQuestionBodyState extends State<RPUISliderQuestionBody>
     with AutomaticKeepAliveClientMixin<RPUISliderQuestionBody> {
   double? value;
 
@@ -37,25 +33,17 @@ class RPUISliderQuestionBodyState extends State<RPUISliderQuestionBody>
         : "";
     return Card(
       child: Container(
-        padding: const EdgeInsets.all(8),
+        padding: EdgeInsets.all(8),
         alignment: Alignment.topLeft,
         child: Column(
           children: <Widget>[
             Text(
               text,
-              style: const TextStyle(fontSize: 18),
+              style: TextStyle(fontSize: 18),
             ),
             Slider(
-              // activeColor: Theme.of(context).sliderTheme.activeTrackColor,
-              activeColor: (CupertinoTheme.of(context).primaryColor ==
-                      CupertinoColors.activeBlue)
-                  ? Theme.of(context).sliderTheme.activeTrackColor
-                  : CupertinoTheme.of(context).primaryColor.withAlpha(0xff),
-              // inactiveColor: Theme.of(context).sliderTheme.inactiveTrackColor,
-              inactiveColor: (CupertinoTheme.of(context).primaryColor ==
-                      CupertinoColors.activeBlue)
-                  ? Theme.of(context).sliderTheme.inactiveTrackColor
-                  : CupertinoTheme.of(context).primaryColor.withAlpha(0x3d),
+              activeColor: Theme.of(context).sliderTheme.activeTrackColor,
+              inactiveColor: Theme.of(context).sliderTheme.inactiveTrackColor,
               value: value ?? widget.answerFormat.minValue,
               onChanged: (double newValue) {
                 setState(() {

@@ -1,6 +1,6 @@
 part of research_package_model;
 
-/// A concrete subclass of [RPStep] that represents a step in which a single
+/// The concrete subclass of [RPStep] that represents a step in which a single
 /// question is presented to the user.
 ///
 /// When a Task Widget presents an Question Step object, it instantiates an
@@ -10,8 +10,6 @@ part of research_package_model;
 /// appropriate to use [RPFormStep] instead of [RPQuestionStep].
 @JsonSerializable(fieldRename: FieldRename.snake, includeIfNull: false)
 class RPQuestionStep extends RPStep {
-  RPUIQuestionStep? _widget;
-
   /// The answer format which describes the format how a question can be answered.
   RPAnswerFormat answerFormat;
 
@@ -19,42 +17,24 @@ class RPQuestionStep extends RPStep {
   /// requires text entry
   String? placeholder;
 
-  /// Should we automatically move to the next step after [timeout] seconds?
-  /// False by default.
-  bool autoSkip;
+  /// Creates a Question Step populated with title (text of the question) and
+  /// answer format on which the actual layout depends
+  RPQuestionStep(
+      {required String identifier,
+      required this.answerFormat,
+      required String title,
+      bool optional = false})
+      : super(identifier: identifier, title: title, optional: optional);
 
-  /// If [autoSkip] is true, defines how long to wait for the answer
-  /// before automatically skipping to the next step.
-  Duration timeout;
-
-  /// Should the keyboard automatically be displayed when asking a text question?
-  /// Applies only to [RPTextAnswerFormat] questions.
-  /// False by default.
-  bool autoFocus;
-
-  /// Creates a [RPQuestionStep].
+  /// The widget (UI representation) of the step.
   ///
-  /// [identifier] is a unique id of this step,
-  /// [title] is shown as the title of the question), and
-  /// [answerFormat] defines the type of questionnaire, as defined in
-  /// [RPAnswerFormat].
-  RPQuestionStep({
-    required super.identifier,
-    required super.title,
-    super.optional,
-    required this.answerFormat,
-    this.autoSkip = false,
-    this.timeout = const Duration(seconds: 0),
-    this.autoFocus = false,
-  });
-
+  /// This gets initialized when a Question Step has been added to a Task which
+  /// is later presented by an [RPUITask] widget.
   @override
-  Widget get stepWidget => _widget ??= RPUIQuestionStep(this);
+  Widget get stepWidget => RPUIQuestionStep(this);
 
-  @override
   Function get fromJsonFunction => _$RPQuestionStepFromJson;
   factory RPQuestionStep.fromJson(Map<String, dynamic> json) =>
       FromJsonFactory().fromJson(json) as RPQuestionStep;
-  @override
   Map<String, dynamic> toJson() => _$RPQuestionStepToJson(this);
 }

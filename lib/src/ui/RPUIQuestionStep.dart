@@ -6,69 +6,46 @@ part of research_package_ui;
 class RPUIQuestionStep extends StatefulWidget {
   final RPQuestionStep step;
 
-  const RPUIQuestionStep(this.step, {super.key});
+  RPUIQuestionStep(this.step);
 
   @override
-  RPUIQuestionStepState createState() => RPUIQuestionStepState();
+  _RPUIQuestionStepState createState() => _RPUIQuestionStepState();
 }
 
-class RPUIQuestionStepState extends State<RPUIQuestionStep> with CanSaveResult {
+class _RPUIQuestionStepState extends State<RPUIQuestionStep>
+    with CanSaveResult {
   // Dynamic because we don't know what value the RPChoice will have
   dynamic _currentQuestionBodyResult;
-  RPStepResult? result;
+  late bool readyToProceed;
+  late RPStepResult result;
   RPTaskProgress? recentTaskProgress;
-  int timeInStep = 0;
-  Timer? timer;
 
   set currentQuestionBodyResult(dynamic currentQuestionBodyResult) {
-    _currentQuestionBodyResult = currentQuestionBodyResult;
+    this._currentQuestionBodyResult = currentQuestionBodyResult;
     createAndSendResult();
-    if (_currentQuestionBodyResult != null) {
+    if (this._currentQuestionBodyResult != null) {
       blocQuestion.sendReadyToProceed(true);
     } else {
       blocQuestion.sendReadyToProceed(false);
     }
   }
 
-  void skipQuestion() {
-    timer?.cancel();
-
-    FocusManager.instance.primaryFocus?.unfocus();
-    blocTask.sendStatus(RPStepStatus.Skipped);
-    currentQuestionBodyResult = null;
+  skipQuestion() {
+    blocTask.sendStatus(RPStepStatus.Finished);
+    this.currentQuestionBodyResult = null;
   }
 
   @override
   void initState() {
-    super.initState();
-    timeInStep = 0;
-
-    if (widget.step.autoSkip) {
-      timer ??= Timer.periodic(const Duration(seconds: 1), (_) {
-        timeInStep++;
-        if (timeInStep >= widget.step.timeout.inSeconds) skipQuestion();
-      });
-    }
-
-    // Create the result object here to record the start time
+    // Instantiating the result object here to start the time counter (startDate)
     result = RPStepResult(
         identifier: widget.step.identifier,
-        questionTitle: widget.step.title,
         answerFormat: widget.step.answerFormat);
+    readyToProceed = false;
     blocQuestion.sendReadyToProceed(false);
     recentTaskProgress = blocTask.lastProgressValue;
-  }
 
-  @override
-  void deactivate() {
-    timer?.cancel();
-    super.deactivate();
-  }
-
-  @override
-  void dispose() {
-    timer?.cancel();
-    super.dispose();
+    super.initState();
   }
 
   // Returning the according step body widget based on the answerFormat of the step
@@ -77,37 +54,37 @@ class RPUIQuestionStepState extends State<RPUIQuestionStep> with CanSaveResult {
       case RPIntegerAnswerFormat:
         return RPUIIntegerQuestionBody((answerFormat as RPIntegerAnswerFormat),
             (result) {
-          currentQuestionBodyResult = result;
-        });
-      case RPDoubleAnswerFormat:
-        return RPUIDoubleQuestionBody((answerFormat as RPDoubleAnswerFormat),
-            (result) {
-          currentQuestionBodyResult = result;
+          this.currentQuestionBodyResult = result;
         });
       case RPChoiceAnswerFormat:
         return RPUIChoiceQuestionBody((answerFormat as RPChoiceAnswerFormat),
             (result) {
-          currentQuestionBodyResult = result;
+          this.currentQuestionBodyResult = result;
         });
       case RPSliderAnswerFormat:
         return RPUISliderQuestionBody((answerFormat as RPSliderAnswerFormat),
             (result) {
-          currentQuestionBodyResult = result;
+          this.currentQuestionBodyResult = result;
         });
       case RPImageChoiceAnswerFormat:
         return RPUIImageChoiceQuestionBody(
             (answerFormat as RPImageChoiceAnswerFormat), (result) {
-          currentQuestionBodyResult = result;
+          this.currentQuestionBodyResult = result;
         });
       case RPDateTimeAnswerFormat:
         return RPUIDateTimeQuestionBody(
             (answerFormat as RPDateTimeAnswerFormat), (result) {
-          currentQuestionBodyResult = result;
+          this.currentQuestionBodyResult = result;
+        });
+      case RPBooleanAnswerFormat:
+        return RPUIBooleanQuestionBody((answerFormat as RPBooleanAnswerFormat),
+            (result) {
+          this.currentQuestionBodyResult = result;
         });
       case RPTextAnswerFormat:
         return RPUITextInputQuestionBody((answerFormat as RPTextAnswerFormat),
             (result) {
-          currentQuestionBodyResult = result;
+          this.currentQuestionBodyResult = result;
         });
       default:
         return Container();
@@ -119,7 +96,7 @@ class RPUIQuestionStepState extends State<RPUIQuestionStep> with CanSaveResult {
     RPLocalizations? locale = RPLocalizations.of(context);
     return SafeArea(
       child: ListView(
-        padding: const EdgeInsets.all(8),
+        padding: EdgeInsets.all(8),
         children: [
           // Title
           Padding(
@@ -128,7 +105,7 @@ class RPUIQuestionStepState extends State<RPUIQuestionStep> with CanSaveResult {
             child: Text(
               locale?.translate(widget.step.title) ?? widget.step.title,
               textAlign: TextAlign.left,
-              style: Theme.of(context).textTheme.titleLarge,
+              style: Theme.of(context).textTheme.headline6,
             ),
           ),
           Padding(
@@ -149,20 +126,17 @@ class RPUIQuestionStepState extends State<RPUIQuestionStep> with CanSaveResult {
 
   @override
   void createAndSendResult() {
-    timer?.cancel();
-
-    if (result != null) {
-      result?.questionTitle = widget.step.title;
-      result?.setResult(_currentQuestionBodyResult);
-      blocTask.sendStepResult(result!);
-    }
+    // Populate the result object with value and end the time tracker (set endDate). Set questionTitle
+    result.questionTitle = widget.step.title;
+    result.setResult(_currentQuestionBodyResult);
+    blocTask.sendStepResult(result);
   }
 }
 
 // Render the title above the questionBody
 class Title extends StatelessWidget {
   final String title;
-  const Title(this.title, {super.key});
+  Title(this.title);
 
   @override
   Widget build(BuildContext context) {
@@ -173,7 +147,7 @@ class Title extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 24, left: 8, right: 8, top: 8),
         child: Text(
           title,
-          style: Theme.of(context).textTheme.titleLarge,
+          style: Theme.of(context).textTheme.headline6,
           textAlign: TextAlign.start,
         ),
       );
